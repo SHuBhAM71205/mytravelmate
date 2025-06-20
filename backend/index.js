@@ -26,6 +26,7 @@ app.get('/api/user',require('./routes/user.js'));
 // -----------------------------------------------------------
 
 //start listen
+
 app.listen(port, () => {
   console.log(`TRAVELMATE app listening on port ${port}`)
 })
