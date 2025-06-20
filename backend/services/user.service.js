@@ -38,3 +38,21 @@ module.exports.authenticateUser = async ({ email, password }) => {
         throw new Error('Error authenticating user: ' + error.message);
     }
 }
+
+
+module.exports.getProfile  = async (userid) => {
+    if (!userid) {
+        throw new Error('User ID is required');
+    }
+    try {
+        const user = await GeneralUser.findById(userid);
+        if(!user)
+        {
+            throw new Error('User not found');
+        }
+        return user;
+    }
+    catch (error) {
+        throw new Error('Error fetching user profile: ' + error.message);
+    }
+}

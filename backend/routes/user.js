@@ -2,6 +2,7 @@ const express = require('express')
 const {body}=require('express-validator');
 const UserController = require('../controllers/user.controller');
 const router= express.Router(); 
+const getid = require('../middleware/getid.middleware');
 
 router.post('/register', [
 
@@ -25,8 +26,15 @@ router.post('/register', [
 ], UserController.registerUser);
 
 router.post('/login', [
+
   body('email').isEmail().withMessage('Invalid email address'),
+  
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+
 ], UserController.loginUser);
+
+router.get('/getprofile',[
+  body('userId').notEmpty().withMessage('User ID is required')
+], getid , UserController.getProfile)
 
 module.exports = router;

@@ -53,3 +53,20 @@ module.exports.loginUser = async (req, res, next) => {
 
     next();
 }
+
+module.exports.getProfile= async(req,res,next)=>{
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const Profile = await userService.getProfile(req.userId);
+    
+    if(!Profile) {
+        return res.status(404).json({ message: 'Profile not found' });
+    }
+    
+    res.status(200).json({ Profile });
+    
+    next();
+}
