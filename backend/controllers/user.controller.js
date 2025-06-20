@@ -1,5 +1,3 @@
-const express = require('express');
-
 const GeneralUser=require('../models/User/GeneralUser');
 const userService = require('../services/user.service');
 const { validationResult } = require('express-validator');
@@ -27,7 +25,6 @@ module.exports.registerUser = async (req, res, next) => {
 
     next();
 }
-
 
 module.exports.loginUser = async (req, res, next) => {
     const errors = validationResult(req);

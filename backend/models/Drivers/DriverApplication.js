@@ -24,4 +24,7 @@ const DriverApplicationSchema=mongoose.Schema({
     }
 });
 
+
+
+
 module.exports=mongoose.model('DriverApplication',DriverApplicationSchema)
