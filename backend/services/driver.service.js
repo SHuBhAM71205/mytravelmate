@@ -1,7 +1,4 @@
 const Driver = require('../models/Drivers/Driver');
-const DriverApplication = require('../models/Drivers/DriverApplication');
-const Vehicle = require('../models/Vehicle/Vehicle');
-
 
 
 module.exports.getDriverProfile = async (driverId) => {

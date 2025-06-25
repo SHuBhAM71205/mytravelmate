@@ -67,3 +67,13 @@ module.exports.getProfile= async(req,res,next)=>{
     
     next();
 }
+
+
+module.exports.editProfile =async (req,res,next) => {
+    next();
+}
+
+module.exports.resetPassword =async (req,res,next) => {
+    next();
+}
+

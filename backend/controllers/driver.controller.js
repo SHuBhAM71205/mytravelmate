@@ -61,7 +61,6 @@ module.exports.loginDriver = async (req, res, next) => {
     }
 }
 
-
 module.exports.setWorkingStatus = async (req, res, next) => {
     const errors = validationResult(req);
     
@@ -76,4 +75,45 @@ module.exports.setWorkingStatus = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+}
+
+module.exports.updateDriverProfile = async (req, res, next) => {
+}
+
+module.exports.updateDriverPassword = async (req, res, next) => {
+}
+
+module.exports.getDriverStats = async (req, res, next) => {
+}
+
+module.exports.startTrip = async (req, res, next) => {
+}
+
+module.exports.endTrip = async (req, res, next) => {
+}
+
+module.exports.getCurrentTrip = async (req, res, next) => {
+}
+
+module.exports.getTripHistory = async (req, res, next) => {
+
+}
+
+module.exports.getMyTrips = async (req, res, next) => {
+
+}
+
+
+module.exports.addVehicle = async (req, res, next) => {
+
+}
+
+module.exports.getVehicles = async (req, res, next) => {
+}
+
+module.exports.deleteVehicle = async (req, res, next) => {
+    
+}
+
+module.exports.getDriverStats = async (req, res, next) => {
 }

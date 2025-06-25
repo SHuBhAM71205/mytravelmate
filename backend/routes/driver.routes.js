@@ -6,40 +6,38 @@ const DriverController = require('../controllers/driver.controller');
 const getId= require('../middleware/getid.middleware');
 
 
-router.get('/profile', DriverController.getDriverProfile);
+// basic
 
-router.post('/createdriver', [
-    
-    body('fname').notEmpty().withMessage('First name is required'),
-    
-    body('lname').notEmpty().withMessage('Last name is required'),
-    
-    body('gender').isIn(['Male', 'female']).withMessage('Gender must be Male or female'),
+router.post('/createdriver', [], DriverController.createDriver);
 
-    body('email').isEmail().withMessage('Invalid email address'),
+router.post('/login', [], DriverController.loginDriver);
 
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+router.get('/getprofile', DriverController.getDriverProfile);
 
-    body('contact').matches(/^[0-9]{10}$/).withMessage('Contact number must be 10 digits long'),
+router.put('/updateprofile', [], DriverController.updateDriverProfile);
 
-    body('area').notEmpty().withMessage('Area is required'),
+router.put('/updatepassword',[], DriverController.updateDriverPassword);
 
-    body('role').notEmpty().withMessage('Role is required'),
+// trip related
 
-    body('vehicle').notEmpty().withMessage('Vehicle details are required'),
+router.put('/setworkingstatus/:status', [], getId, DriverController.setWorkingStatus);
 
-    
+router.get('/triphistory', [], DriverController.getTripHistory);
 
-] ,DriverController.createDriver);
+router.get('/getmytrips', [], DriverController.getMyTrips);
 
-router.post('/login',[
-    body('email').isEmail().withMessage('Invalid email address'),
-    body('password').notEmpty().withMessage('Password is required')
-], DriverController.loginDriver);
+// vehicle related
 
-router.put('/setworkingstatus', [
-    body('workingStatus').isBoolean().withMessage('Working status must be a boolean')
-], getId, DriverController.setWorkingStatus);
+router.post('/addvehicle', [], DriverController.addVehicle);
+
+router.get('/getvehicles', [], DriverController.getVehicles);
+
+router.delete('/deletevehicle/:vehicleId', [], DriverController.deleteVehicle);
+
+// stats of user
+
+router.get('/stats', [], DriverController.getDriverStats);
+
 
 
 module.exports=router;

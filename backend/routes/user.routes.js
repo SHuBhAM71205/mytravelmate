@@ -4,37 +4,16 @@ const UserController = require('../controllers/user.controller');
 const router= express.Router(); 
 const getid = require('../middleware/getid.middleware');
 
-router.post('/register', [
+router.post('/register', [], UserController.registerUser);
 
-  body('fname').notEmpty().withMessage('First name is required'),
+router.post('/login', [], UserController.loginUser);
 
-  body('lname').notEmpty().withMessage('Last name is required'),
-  
-  body('gender').isIn(['Male', 'female']).withMessage('Gender must be Male or female'),
+router.get('/getprofile',[], getid , UserController.getProfile)
 
-  body('email').isEmail().withMessage('Invalid email address'),
+router.put('/updateprofile',[],UserController.editProfile)
 
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-
-  body('contact').matches(/^[0-9]{10}$/).withMessage('Contact number must be 10 digits long'),
-
-  body('area').notEmpty().withMessage('Area is required'),
-
-  body('role').notEmpty().withMessage('Role is required')
+router.post('/resetpassword',[],UserController.resetPassword)
 
 
-], UserController.registerUser);
-
-router.post('/login', [
-
-  body('email').isEmail().withMessage('Invalid email address'),
-  
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
-
-], UserController.loginUser);
-
-router.get('/getprofile',[
-  body('userId').notEmpty().withMessage('User ID is required')
-], getid , UserController.getProfile)
 
 module.exports = router;
