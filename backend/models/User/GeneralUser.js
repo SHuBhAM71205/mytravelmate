@@ -5,17 +5,14 @@ const bcrypt = require('bcrypt');
 
 
 const GeneralUserSchema= new mongoose.Schema({
-  fname: { type: String, required: true, maxlength: 50 },
-  lname: { type: String, required: true, maxlength: 50 },
-  gender: { type: String, enum: ['Male', 'male','f','F'], required: true },
-  area: { type: mongoose.Schema.Types.ObjectId, ref: 'CityTag' },
-  role: { type: mongoose.Schema.Types.ObjectId, ref: 'RoleTag' },
-  email: { type: String, required: true, unique: true, maxlength: 100 },
-  password: { type: String, required: true,select:false },
-  contact: { type: String, match: /^[0-9]{10}$/ },
-  createdAt: { type: Date, default: Date.now },
-  socketId:{type:String}
-})
+  name: { type: String, required: true },
+  phone: { type: String, unique: true, required: true },
+  email: { type: String, unique: true },
+  password: { type: String, required: true },
+  profilePic: String,
+  isBlocked: { type: Boolean, default: false }
+}, { timestamps: true });
+
 
 GeneralUserSchema.methods.generateAuthToken = function() {
   const user = this;
