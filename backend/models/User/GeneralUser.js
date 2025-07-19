@@ -9,6 +9,8 @@ const GeneralUserSchema= new mongoose.Schema({
   phone: { type: String, unique: true, required: true },
   email: { type: String, unique: true },
   password: { type: String, required: true },
+  gender: { type: String, enum: ['male', 'female', 'other'], required: true },
+  area: { type: String, required: true },
   profilePic: String,
   isBlocked: { type: Boolean, default: false }
 }, { timestamps: true });

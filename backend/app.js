@@ -5,9 +5,6 @@ const cors = require('cors');
 
       const app = express();
 
-const db = require('./db');
-db();
-
 // routes
 const  userRoutes = require('./routes/user.routes');
 const adminRoutes = require('./routes/admin.routes');
