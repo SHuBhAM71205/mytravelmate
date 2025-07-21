@@ -1,9 +1,14 @@
+const { validationResult } = require('express-validator');
 const Trip = require('../models/Trip/Trip');
 const Driver = require('../models/Drivers/Driver');
 const GeneralUser = require('../models/User/GeneralUser');
 
 // Create a new trip
 exports.createTrip = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { driver, origin, destination, fare } = req.body;
         const trip = new Trip({
@@ -33,6 +38,10 @@ exports.getTrips = async (req, res) => {
 
 // Get trip details
 exports.getTripById = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const trip = await Trip.findById(req.params.id).populate('user driver');
         if (!trip) return res.status(404).json({ message: 'Trip not found' });
@@ -44,6 +53,10 @@ exports.getTripById = async (req, res) => {
 
 // Cancel a trip
 exports.cancelTrip = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const trip = await Trip.findByIdAndUpdate(req.params.id, { status: 'cancelled' }, { new: true });
         if (!trip) return res.status(404).json({ message: 'Trip not found' });
@@ -55,6 +68,10 @@ exports.cancelTrip = async (req, res) => {
 
 // Complete a trip
 exports.completeTrip = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const trip = await Trip.findByIdAndUpdate(req.params.id, { status: 'completed', endedAt: new Date() }, { new: true });
         if (!trip) return res.status(404).json({ message: 'Trip not found' });

@@ -1,3 +1,4 @@
+const { validationResult } = require('express-validator');
 const GeneralUser = require('../models/User/GeneralUser');
 const Trip = require('../models/Trip/Trip');
 const bcrypt = require('bcrypt');
@@ -5,6 +6,10 @@ const jwt = require('jsonwebtoken');
 
 // User registration
 exports.register = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { name, phone, email, password, gender, area } = req.body;
         const existing = await GeneralUser.findOne({ $or: [{ email }, { phone }] });
@@ -20,6 +25,10 @@ exports.register = async (req, res) => {
 
 // User login
 exports.login = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { email, password } = req.body;
         const user = await GeneralUser.findOne({ email });
@@ -45,6 +54,10 @@ exports.getProfile = async (req, res) => {
 
 // Update user profile
 exports.updateProfile = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const updates = req.body;
         if (updates.password) {

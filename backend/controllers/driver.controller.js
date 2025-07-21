@@ -1,3 +1,4 @@
+const { validationResult } = require('express-validator');
 const Driver = require('../models/Drivers/Driver');
 const Trip = require('../models/Trip/Trip');
 const bcrypt = require('bcryptjs');
@@ -5,6 +6,10 @@ const jwt = require('jsonwebtoken');
 
 // Driver registration
 exports.register = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { name, phone, email, password, gender, area, licenseNumber, vehicle } = req.body;
         const existing = await Driver.findOne({ $or: [{ email }, { phone }] });
@@ -20,6 +25,10 @@ exports.register = async (req, res) => {
 
 // Driver login
 exports.login = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { email, password } = req.body;
         const driver = await Driver.findOne({ email });
@@ -45,6 +54,10 @@ exports.getProfile = async (req, res) => {
 
 // Update driver profile
 exports.updateProfile = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const updates = req.body;
         if (updates.password) {
@@ -59,6 +72,10 @@ exports.updateProfile = async (req, res) => {
 
 // Set driver availability
 exports.setAvailability = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { isAvailable } = req.body;
         const driver = await Driver.findByIdAndUpdate(req.user._id || req.user.id, { isAvailable }, { new: true });
@@ -70,6 +87,10 @@ exports.setAvailability = async (req, res) => {
 
 // Update driver location
 exports.updateLocation = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { coordinates } = req.body;
         const driver = await Driver.findByIdAndUpdate(
@@ -95,6 +116,10 @@ exports.getTrips = async (req, res) => {
 
 // Accept a trip
 exports.acceptTrip = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const trip = await Trip.findByIdAndUpdate(req.params.id, { status: 'accepted' }, { new: true });
         if (!trip) return res.status(404).json({ message: 'Trip not found' });
@@ -106,6 +131,10 @@ exports.acceptTrip = async (req, res) => {
 
 // Reject a trip
 exports.rejectTrip = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const trip = await Trip.findByIdAndUpdate(req.params.id, { status: 'rejected' }, { new: true });
         if (!trip) return res.status(404).json({ message: 'Trip not found' });

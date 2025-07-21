@@ -1,3 +1,4 @@
+const { validationResult } = require('express-validator');
 const Admin = require('../models/Admin/Admin');
 const GeneralUser = require('../models/User/GeneralUser');
 const Driver = require('../models/Drivers/Driver');
@@ -7,6 +8,10 @@ const jwt = require('jsonwebtoken');
 
 // Admin login
 exports.login = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     const { email, password } = req.body;
     try {
         const admin = await Admin.findOne({ email }).select('+password');
@@ -42,6 +47,10 @@ exports.listUsers = async (req, res) => {
 
 // Block a user
 exports.blockUser = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const user = await GeneralUser.findByIdAndUpdate(req.params.id, { isBlocked: true }, { new: true });
         if (!user) return res.status(404).json({ message: 'User not found' });
@@ -53,6 +62,10 @@ exports.blockUser = async (req, res) => {
 
 // Unblock a user
 exports.unblockUser = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const user = await GeneralUser.findByIdAndUpdate(req.params.id, { isBlocked: false }, { new: true });
         if (!user) return res.status(404).json({ message: 'User not found' });
@@ -74,6 +87,10 @@ exports.listDrivers = async (req, res) => {
 
 // Approve a driver
 exports.approveDriver = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const driver = await Driver.findByIdAndUpdate(req.params.id, { isVerified: true }, { new: true });
         if (!driver) return res.status(404).json({ message: 'Driver not found' });
@@ -85,6 +102,10 @@ exports.approveDriver = async (req, res) => {
 
 // Reject a driver
 exports.rejectDriver = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const driver = await Driver.findByIdAndUpdate(req.params.id, { isVerified: false }, { new: true });
         if (!driver) return res.status(404).json({ message: 'Driver not found' });
