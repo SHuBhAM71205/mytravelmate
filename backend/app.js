@@ -13,6 +13,7 @@ const tripRoutes = require('./routes/trip.routes');
 const mapRoutes = require('./routes/map.routes');
 
 // Middleware
+
 app.use(cors({
   origin: process.env.FRONTEND,
   credentials: true,

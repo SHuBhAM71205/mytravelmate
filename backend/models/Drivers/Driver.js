@@ -16,7 +16,7 @@ const DriverSchema=new mongoose.Schema({
     model: String,
     plateNumber: String,
     color: String
-  },
+  }, 
   rating: { type: Number, default: 0 },
   isAvailable: { type: Boolean, default: true },
   isVerified: { type: Boolean, default: false },

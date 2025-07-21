@@ -1,27 +1,23 @@
-const express = require('express')
-const {body}=require('express-validator');
-const TripController = require('../controllers/trip.controller');
-const router= express.Router(); 
+const express = require('express');
+const router = express.Router();
 
-router.post('/createtrip', [], TripController.createTrip);
+// You should implement this middleware to protect trip routes
+const auth = require('../middleware/auth.middleware');
+const tripController = require('../controllers/trip.controller');
 
-router.get('/gettrip/:tripId', [], TripController.getTripDetails);
+// Create a new trip
+router.post('/', auth, tripController.createTrip);
 
-router.put('/updatetrip/:tripId', [], TripController.updateTrip);
+// Get all trips for the user
+router.get('/', auth, tripController.getTrips);
 
-router.delete('/deletetrip/:tripId', [], TripController.deleteTrip);
+// Get trip details
+router.get('/:id', auth, tripController.getTripById);
 
-router.put('/starttrip/:tripId', [], TripController.startTrip);
+// Cancel a trip
+router.patch('/:id/cancel', auth, tripController.cancelTrip);
 
-router.put('/endtrip/:tripId', [], TripController.endTrip);
-
-router.get('/mytrips/:userId', [], TripController.getUserTrips);
-
-router.put('/rate/:tripId', [], TripController.rateTrip);
-
-router.get('/fare/:tripId', authMiddleware, TripController.getFareDetails);
-
-router.post('/pay/:tripId', authMiddleware, TripController.makePayment);
-
+// Complete a trip
+router.patch('/:id/complete', auth, tripController.completeTrip);
 
 module.exports = router;

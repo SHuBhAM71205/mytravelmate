@@ -1,24 +1,26 @@
-const express = require('express')
+const express = require('express');
+const router = express.Router();
 
-const router= express.Router();
-const AdminController = require('../controllers/admin.controller');
+const isAdmin = require('../middleware/isAdmin.middleware');
+const adminController = require('../controllers/admin.controller');
 
+// Admin login
+router.post('/login', adminController.login);
 
-router.post('/admin/login', AdminController.loginAdmin);
+// Get admin profile
+router.get('/profile', isAdmin, adminController.getProfile);
 
-router.get('/admin/profile', isAdmin, AdminController.getProfile);
-router.put('/admin/updateprofile', isAdmin, AdminController.updateProfile);
-router.put('/admin/changepassword', isAdmin, AdminController.changePassword);
+// User management
+router.get('/users', isAdmin, adminController.listUsers);
+router.patch('/users/:id/block', isAdmin, adminController.blockUser);
+router.patch('/users/:id/unblock', isAdmin, adminController.unblockUser);
 
+// Driver management
+router.get('/drivers', isAdmin, adminController.listDrivers);
+router.patch('/drivers/:id/approve', isAdmin, adminController.approveDriver);
+router.patch('/drivers/:id/reject', isAdmin, adminController.rejectDriver);
 
-router.get('/admin/users', isAdmin, AdminController.getAllUsers);
-router.get('/admin/user/:id', isAdmin, AdminController.getUserById);
-router.put('/admin/user/:id', isAdmin, AdminController.editUserById);
-router.delete('/admin/user/:id', isAdmin, AdminController.deleteUserById);
+// Trip management
+router.get('/trips', isAdmin, adminController.listTrips);
 
-
-router.get('/admin/stats', isAdmin, AdminController.getSiteStats);
-router.get('/admin/monthly-activity', isAdmin, AdminController.getMonthlyUserActivity);
-
-
-module.exports=router;
+module.exports = router;

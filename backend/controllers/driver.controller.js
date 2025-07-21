@@ -1,139 +1,116 @@
-const { validationResult } = require('express-validator');
-
-const GeneralUser = require('../models/User/GeneralUser');
-const driverService = require('../services/driver.service');
 const Driver = require('../models/Drivers/Driver');
+const Trip = require('../models/Trip/Trip');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-module.exports.createDriver = async (req, res, next) => {
-    const errors = validationResult(req);
-    if(!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
+// Driver registration
+exports.register = async (req, res) => {
     try {
-        const driver = await driverService.createDriver(req.body);
-        res.status(201).json({ driver });
-    } catch (error) {
-        next(error);
+        const { name, phone, email, password, gender, area, licenseNumber, vehicle } = req.body;
+        const existing = await Driver.findOne({ $or: [{ email }, { phone }] });
+        if (existing) return res.status(400).json({ message: 'Driver already exists' });
+        const hashed = await Driver.hashPassword(password);
+        const driver = new Driver({ name, phone, email, password: hashed, gender, area, licenseNumber, vehicle });
+        await driver.save();
+        res.status(201).json({ message: 'Driver registered' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
     }
-}
+};
 
-module.exports.getDriverProfile = async (req, res, next) => {
-    try {
-        const driver = await driverService.getDriverProfile(req.params.id);
-        if (!driver) {
-            return res.status(404).json({ message: 'Driver not found' });
-        }
-        res.status(200).json({ driver });
-    } catch (error) {
-        next(error);
-    }
-}
-
-module.exports.loginDriver = async (req, res, next) => {
-
-    const errors = validationResult(req);
-    
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
+// Driver login
+exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const isMatch = await driverService.authenticateDriver(email, password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid email or password' });
-        }
-        
-
-        const token = isMatch.generateAuthToken();
-
-        res.status(200).json({ token , driver: isMatch });
-
-    } catch (error) {
-        next(error);
+        const driver = await Driver.findOne({ email });
+        if (!driver) return res.status(400).json({ message: 'Invalid credentials' });
+        const isMatch = await driver.comparePassword(password);
+        if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+        const token = driver.generateAuthToken();
+        res.json({ token });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
     }
+};
 
-}
-
-module.exports.setWorkingStatus = async (req, res, next) => {
-    const errors = validationResult(req);
-    
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
+// Get driver profile
+exports.getProfile = async (req, res) => {
     try {
-        const { workingStatus } = req.params;
-        const driver = await driverService.setWorkingStatus(req.userId, workingStatus);
-        res.status(200).json({ driver });
-    } catch (error) {
-        next(error);
+        const driver = await Driver.findById(req.user._id || req.user.id).select('-password');
+        res.json(driver);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
     }
-}
+};
 
-module.exports.updateDriverProfile = async (req, res, next) => {
-    const userid = req.userId;
-    const { name, phone,email,area,gender } = req.body;
-    const updateFields = {};
-    if(name) {
-        updateFields.name = name;
+// Update driver profile
+exports.updateProfile = async (req, res) => {
+    try {
+        const updates = req.body;
+        if (updates.password) {
+            updates.password = await Driver.hashPassword(updates.password);
+        }
+        const driver = await Driver.findByIdAndUpdate(req.user._id || req.user.id, updates, { new: true }).select('-password');
+        res.json(driver);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
     }
-    if(phone) {
-        updateFields.phone = phone;
+};
+
+// Set driver availability
+exports.setAvailability = async (req, res) => {
+    try {
+        const { isAvailable } = req.body;
+        const driver = await Driver.findByIdAndUpdate(req.user._id || req.user.id, { isAvailable }, { new: true });
+        res.json(driver);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
     }
-    if(email) {
-        updateFields.email = email;
+};
+
+// Update driver location
+exports.updateLocation = async (req, res) => {
+    try {
+        const { coordinates } = req.body;
+        const driver = await Driver.findByIdAndUpdate(
+            req.user._id || req.user.id,
+            { 'location.coordinates': coordinates, 'location.updatedAt': new Date() },
+            { new: true }
+        );
+        res.json(driver);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
     }
-    if(area) {
-        updateFields.area = area;
-    }   
-    if(gender) {
-        updateFields.gender = gender;
+};
+
+// Get all trips for driver
+exports.getTrips = async (req, res) => {
+    try {
+        const trips = await Trip.find({ driver: req.user._id || req.user.id }).populate('user');
+        res.json(trips);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
     }
+};
 
-    const user = await driverService.updateProfile(userid, updateFields);
-    if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+// Accept a trip
+exports.acceptTrip = async (req, res) => {
+    try {
+        const trip = await Trip.findByIdAndUpdate(req.params.id, { status: 'accepted' }, { new: true });
+        if (!trip) return res.status(404).json({ message: 'Trip not found' });
+        res.json({ message: 'Trip accepted', trip });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
     }
+};
 
-    res.status(200).json({ user });
-}
-
-module.exports.updateDriverPassword = async (req, res, next) => {
-}
-
-module.exports.getDriverStats = async (req, res, next) => {
-}
-
-module.exports.startTrip = async (req, res, next) => {
-}
-
-module.exports.endTrip = async (req, res, next) => {
-}
-
-module.exports.getCurrentTrip = async (req, res, next) => {
-}
-
-module.exports.getTripHistory = async (req, res, next) => {
-
-}
-
-module.exports.getMyTrips = async (req, res, next) => {
-
-}
-
-
-module.exports.addVehicle = async (req, res, next) => {
-
-}
-
-module.exports.getVehicles = async (req, res, next) => {
-}
-
-module.exports.deleteVehicle = async (req, res, next) => {
-    
-}
-
-module.exports.getDriverStats = async (req, res, next) => {
-}
+// Reject a trip
+exports.rejectTrip = async (req, res) => {
+    try {
+        const trip = await Trip.findByIdAndUpdate(req.params.id, { status: 'rejected' }, { new: true });
+        if (!trip) return res.status(404).json({ message: 'Trip not found' });
+        res.json({ message: 'Trip rejected', trip });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
