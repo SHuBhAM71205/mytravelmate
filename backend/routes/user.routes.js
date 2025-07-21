@@ -32,9 +32,14 @@ router.post('/login', [
 
 // User profile
 router.get('/profile', auth, userController.getProfile);
-router.put('/profile', [auth,
+router.put('/profile', [
+  auth,
   check('email').optional().isEmail(),
   check('password').optional().isLength({ min: 6 }),
+  check('name').optional().notEmpty(),
+  check('phone').optional().notEmpty(),
+  check('gender').optional().isIn(['male', 'female', 'other']),
+  check('area').optional().notEmpty(),
   validate
 ], userController.updateProfile);
 

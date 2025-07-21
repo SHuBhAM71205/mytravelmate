@@ -59,14 +59,32 @@ exports.updateProfile = async (req, res) => {
         return res.status(400).json({ errors: errors.array() });
     }
     try {
-        const updates = req.body;
+        const allowedFields = ['email', 'password', 'name', 'phone', 'gender', 'area'];
+        const updates = {};
+        for (const field of allowedFields) {
+            if (req.body[field] !== undefined) {
+                updates[field] = req.body[field];
+            }
+        }
+        
+        if (updates.email) {
+            const existing = await GeneralUser.findOne({ email: updates.email, _id: { $ne: req.user._id || req.user.id } });
+            if (existing) {
+                return res.status(400).json({ message: 'Email already in use by another user' });
+            }
+        }
+        
         if (updates.password) {
             updates.password = await GeneralUser.hashPassword(updates.password);
         }
-        const user = await GeneralUser.findByIdAndUpdate(req.user._id || req.user.id, updates, { new: true }).select('-password');
+        const user = await GeneralUser.findByIdAndUpdate(
+            req.user._id || req.user.id,
+            { $set: updates },
+            { new: true }
+        ).select('-password');
         res.json(user);
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 

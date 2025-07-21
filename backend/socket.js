@@ -25,6 +25,20 @@ function initializeSocket(server) {
             io.to(`trip-${tripId}`).emit('location-update', location);
         });
 
+        
+        socket.on('trip-status', ({ tripId, status }) => {
+           
+            console.log(`Trip ${tripId} status: ${status}`);
+            io.to(`trip-${tripId}`).emit('trip-status-update', { status });
+        });
+
+        
+        socket.on('trip-chat', ({ tripId, sender, message }) => {
+            
+            console.log(`Chat in trip ${tripId} from ${sender}: ${message}`);
+            io.to(`trip-${tripId}`).emit('trip-chat-message', { sender, message });
+        });
+
         socket.on('disconnect', () => {
             console.log(' Socket disconnected:', socket.id);
         });

@@ -1,3 +1,21 @@
+// Admin registration
+exports.register = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const { name, email, password, phone, gender, area, profilePic } = req.body;
+        // Check for existing admin by email or phone
+        const existing = await Admin.findOne({ $or: [{ email }, { phone }] });
+        if (existing) return res.status(400).json({ message: 'Admin already exists' });
+        const admin = new Admin({ name, email, password, phone, gender, area, profilePic });
+        await admin.save();
+        res.status(201).json({ message: 'Admin registered' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
 const { validationResult } = require('express-validator');
 const Admin = require('../models/Admin/Admin');
 const GeneralUser = require('../models/User/GeneralUser');

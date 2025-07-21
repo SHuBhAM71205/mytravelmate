@@ -13,8 +13,19 @@ const validate = (req, res, next) => {
   next();
 };
 
-// Admin login
-router.post('/login', [ 
+
+// Admin registration
+router.post('/register', [
+  check('name').notEmpty(),
+  check('email').isEmail(),
+  check('password').isLength({ min: 6 }),
+  check('phone').notEmpty(),
+  check('gender').isIn(['male', 'female', 'other']),
+  check('area').notEmpty(),
+  validate
+], adminController.register);
+
+router.post('/login', [
   check('email').isEmail(),
   check('password').notEmpty(),
   validate
