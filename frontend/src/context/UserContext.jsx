@@ -1,12 +1,27 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { getFromLS, saveToLS } from "../utils/localStorageUtils";
+import { updateProfile } from "../../../backend/controllers/user.controller";
 
 const userContext = createContext();
 
 
 export const userContextProvider = ({ children }) => {
     const [userProfile, setUserProfile] = useState(getFromLS("userProfile") || null);
-    const [token, setToken] = useState(getFromLS("token") || null);
+
+ 
+    useEffect(() => {
+        if (!userProfile) {
+            
+            fetch("/api/user/profile", { credentials: "include" })
+                .then((res) => res.ok ? res.json() : null)
+                .then((data) => {
+                    if (data) {
+                        setUserProfile(data);
+                        saveToLS("userProfile", data);
+                    }
+                });
+        }
+    }, []);
 
     useEffect(() => {
         if (userProfile) {
@@ -16,35 +31,17 @@ export const userContextProvider = ({ children }) => {
         }
     }, [userProfile]);
 
-    useEffect(() => {
-        if (token) {
-            saveToLS("token", token);
-        } else {
-            saveToLS("token", null);
-        }
-    }, [token]);
+    
+    const updateProfile = (updateField) => {
+        setUserProfile((prevProfile) => ({
+            ...prevProfile,
+            ...updateField
+        }));
+    };
 
-    // Login and logout helpers
-    const login = (profile, jwt) => {
-        setUserProfile(profile);
-        setToken(jwt);
-    };
-    const logout = () => {
-        setUserProfile(null);
-        setToken(null);
-    };
 
     return (
-        <userContext.Provider
-            value={{
-                userProfile,
-                setUserProfile,
-                token,
-                setToken,
-                login,
-                logout
-            }}
-        >
+        <userContext.Provider value={{ userProfile, setUserProfile, updateProfile }}>
             {children}
         </userContext.Provider>
     );
